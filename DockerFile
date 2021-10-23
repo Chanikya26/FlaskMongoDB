@@ -1,0 +1,19 @@
+FROM centos:latest
+
+RUN apk add --no-cache python3-dev \
+    && pip3 install --upgrade pip \
+    && echo "name=MongoDB Repo" > /etc/yum.repos.d/mongodb-org.repos \
+    $$ echo "baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.2/x86_64/" >>/etc/yum.repos.d/mongodb-org.repos \
+    $$ echo "gpgcheck=1" >> /etc/yum.repos.d/mongodb-org.repos \
+    && echo "enabled=1" >> /etc/yum.repos.d/mongodb-org.repos \
+    && echo "gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc" >> /etc/yum.repos.d/mongodb-org.repos \
+    && yum install -y mongodb-org \
+    && sudo systemctl start mongod
+
+WORKDIR /app
+COPY . /app/
+RUN pip3 --no-cache-dir install -r requirements.txt
+EXPOSE 5000
+
+ENTRYPOINT [ "python3" ]
+CMD [ "FlaskMongo.py" ]
